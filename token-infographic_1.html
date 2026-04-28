@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How LLM Tokens Work</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --accent: #00e5a0;
+    --accent2: #7c5cfc;
+    --accent3: #ff6b6b;
+    --text: #e8e8f0;
+    --muted: #6a6a80;
+    --glow: rgba(0, 229, 160, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .infographic {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+    position: relative;
+  }
+
+  /* Ambient background effects */
+  .infographic::before {
+    content: '';
+    position: fixed;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124, 92, 252, 0.08), transparent 70%);
+    pointer-events: none;
+  }
+  .infographic::after {
+    content: '';
+    position: fixed;
+    bottom: -100px;
+    left: -200px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(0, 229, 160, 0.06), transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 64px;
+    animation: fadeUp 0.8s ease;
+  }
+
+  .header .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: inline-block;
+    padding: 6px 16px;
+    border: 1px solid rgba(0, 229, 160, 0.25);
+    border-radius: 20px;
+  }
+
+  .header h1 {
+    font-size: clamp(42px, 7vw, 72px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 70%, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .header p {
+    font-size: 18px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 56px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.2s; }
+  .section:nth-child(4) { animation-delay: 0.3s; }
+  .section:nth-child(5) { animation-delay: 0.4s; }
+  .section:nth-child(6) { animation-delay: 0.5s; }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, rgba(124, 92, 252, 0.3), transparent);
+  }
+
+  .section h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  /* Token size card */
+  .token-size-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 36px;
+    border: 1px solid rgba(255,255,255,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .token-size-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--accent), var(--accent2));
+  }
+
+  .token-equation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+
+  .token-unit {
+    text-align: center;
+  }
+
+  .token-unit .big {
+    font-size: 56px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .token-unit .label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .token-eq-sign {
+    font-size: 32px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .token-examples {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .token-chip {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .token-chip:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--glow);
+    transform: translateY(-2px);
+  }
+
+  .token-chip .word { color: #fff; font-weight: 700; }
+  .token-chip .count {
+    color: var(--accent);
+    font-size: 11px;
+    background: rgba(0, 229, 160, 0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  /* BPE Algorithm visual */
+  .bpe-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid rgba(255,255,255,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bpe-steps::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--accent2), var(--accent3));
+  }
+
+  .bpe-step {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: all 0.3s ease;
+  }
+
+  .bpe-step:last-child { border-bottom: none; }
+  .bpe-step:hover { padding-left: 8px; }
+
+  .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-num.s1 { background: rgba(124, 92, 252, 0.15); color: var(--accent2); }
+  .step-num.s2 { background: rgba(0, 229, 160, 0.15); color: var(--accent); }
+  .step-num.s3 { background: rgba(255, 107, 107, 0.15); color: var(--accent3); }
+  .step-num.s4 { background: rgba(255, 200, 50, 0.15); color: #ffc832; }
+
+  .step-text { font-size: 15px; line-height: 1.6; color: var(--text); }
+  .step-text em { color: var(--accent); font-style: normal; font-weight: 600; }
+
+  /* Frequency comparison */
+  .freq-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) { .freq-compare { grid-template-columns: 1fr; } }
+
+  .freq-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid rgba(255,255,255,0.04);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .freq-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  }
+
+  .freq-card.common::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+  }
+
+  .freq-card.rare::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent3);
+  }
+
+  .freq-word {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .freq-card.common .freq-word { color: var(--accent); }
+  .freq-card.rare .freq-word { color: var(--accent3); }
+
+  .freq-tokens {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .freq-token {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid;
+  }
+
+  .freq-card.common .freq-token {
+    background: rgba(0, 229, 160, 0.08);
+    border-color: rgba(0, 229, 160, 0.2);
+    color: var(--accent);
+  }
+
+  .freq-card.rare .freq-token {
+    background: rgba(255, 107, 107, 0.08);
+    border-color: rgba(255, 107, 107, 0.2);
+    color: var(--accent3);
+  }
+
+  .freq-badge {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .freq-badge span {
+    font-weight: 700;
+  }
+
+  .freq-card.common .freq-badge span { color: var(--accent); }
+  .freq-card.rare .freq-badge span { color: var(--accent3); }
+
+  /* Scale card */
+  .scale-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 36px;
+    border: 1px solid rgba(255,255,255,0.04);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scale-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--accent), #ffc832);
+  }
+
+  .scale-stat {
+    margin-bottom: 10px;
+  }
+
+  .scale-stat .num {
+    font-size: 64px;
+    font-weight: 900;
+    font-family: 'Space Mono', monospace;
+    background: linear-gradient(135deg, var(--accent), #ffc832);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+  }
+
+  .scale-stat .unit {
+    font-size: 14px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .scale-equiv {
+    font-size: 16px;
+    color: var(--muted);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  .scale-equiv strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Key insight */
+  .insight-card {
+    background: linear-gradient(135deg, rgba(124, 92, 252, 0.08), rgba(0, 229, 160, 0.08));
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid rgba(124, 92, 252, 0.15);
+    position: relative;
+  }
+
+  .insight-card .icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+
+  .insight-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #fff;
+  }
+
+  .insight-card p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .insight-card p strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="infographic">
+
+  <div class="header">
+    <div class="tag">Demystified</div>
+    <h1>Tokens</h1>
+    <p>How LLMs break language into pieces — and why it matters</p>
+  </div>
+
+  <!-- 1. What is a token -->
+  <div class="section">
+    <div class="section-label">01 — The Basics</div>
+    <h2>What is 1 token?</h2>
+    <div class="token-size-card">
+      <div class="token-equation">
+        <div class="token-unit">
+          <div class="big">1</div>
+          <div class="label">token</div>
+        </div>
+        <div class="token-eq-sign">≈</div>
+        <div class="token-unit">
+          <div class="big">¾</div>
+          <div class="label">of a word</div>
+        </div>
+        <div class="token-eq-sign">≈</div>
+        <div class="token-unit">
+          <div class="big">3–4</div>
+          <div class="label">characters</div>
+        </div>
+      </div>
+      <div class="token-examples">
+        <div class="token-chip"><span class="word">"cat"</span><span class="count">1 token</span></div>
+        <div class="token-chip"><span class="word">"hello"</span><span class="count">1 token</span></div>
+        <div class="token-chip"><span class="word">"the"</span><span class="count">1 token</span></div>
+        <div class="token-chip"><span class="word">"dog"</span><span class="count">1 token</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. BPE Algorithm -->
+  <div class="section">
+    <div class="section-label">02 — The Algorithm</div>
+    <h2>Byte Pair Encoding (BPE)</h2>
+    <div class="bpe-steps">
+      <div class="bpe-step">
+        <div class="step-num s1">1</div>
+        <div class="step-text">Start with every individual <em>character</em> as its own token</div>
+      </div>
+      <div class="bpe-step">
+        <div class="step-num s2">2</div>
+        <div class="step-text">Scan a massive text corpus and find the <em>most frequent pair</em> of adjacent tokens</div>
+      </div>
+      <div class="bpe-step">
+        <div class="step-num s3">3</div>
+        <div class="step-text"><em>Merge</em> that pair into a single new token</div>
+      </div>
+      <div class="bpe-step">
+        <div class="step-num s4">4</div>
+        <div class="step-text">Repeat <em>thousands of times</em> until reaching ~50K–100K vocabulary size</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Frequency matters -->
+  <div class="section">
+    <div class="section-label">03 — Frequency Matters</div>
+    <h2>Common vs. rare words</h2>
+    <div class="freq-compare">
+      <div class="freq-card common">
+        <div class="freq-word">"recognize"</div>
+        <div class="freq-tokens">
+          <div class="freq-token">recognize</div>
+        </div>
+        <div class="freq-badge"><span>1 token</span> — common word, earned its own token</div>
+      </div>
+      <div class="freq-card rare">
+        <div class="freq-word">"rasterize"</div>
+        <div class="freq-tokens">
+          <div class="freq-token">rast</div>
+          <div class="freq-token">er</div>
+          <div class="freq-token">ize</div>
+        </div>
+        <div class="freq-badge"><span>~3 tokens</span> — rare word, split into subwords</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Scale -->
+  <div class="section">
+    <div class="section-label">04 — At Scale</div>
+    <h2>Context window in perspective</h2>
+    <div class="scale-card">
+      <div class="scale-stat">
+        <div class="num">200K</div>
+        <div class="unit">token context window</div>
+      </div>
+      <div class="scale-equiv">
+        ≈ <strong>150,000 words</strong> — roughly the length of <strong>two novels</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Key Insight -->
+  <div class="section">
+    <div class="section-label">05 — The Takeaway</div>
+    <div class="insight-card">
+      <div class="icon">⚡</div>
+      <h3>Not syllables — statistics</h3>
+      <p>
+        BPE is purely <strong>frequency-driven</strong>, not linguistic. It's language-agnostic — working across English, code, emoji, and any language. Common patterns compress into single tokens; rare or technical jargon costs more. This means a <strong>highly technical prompt</strong> consumes more context window than a casual one of the same word count.
+      </p>
+    </div>
+  </div>
+
+  <div class="footer">
+    Generated from a conversation with Claude · 2025
+  </div>
+
+</div>
+</body>
+</html>
