@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>How LLM Tokens Work</title>
+<title>Tokens, Credits, and USD</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -14,7 +14,7 @@
     --accent2: #7c5cfc;
     --accent3: #ff6b6b;
     --text: #e8e8f0;
-    --muted: #6a6a80;
+    --muted: #a0a0b3;
     --glow: rgba(0, 229, 160, 0.15);
   }
 
@@ -25,16 +25,16 @@
     color: var(--text);
     font-family: 'Outfit', sans-serif;
     overflow-x: hidden;
+    line-height: 1.6;
   }
 
   .infographic {
-    max-width: 900px;
+    max-width: 980px;
     margin: 0 auto;
     padding: 60px 32px 80px;
     position: relative;
   }
 
-  /* Ambient background effects */
   .infographic::before {
     content: '';
     position: fixed;
@@ -56,7 +56,6 @@
     pointer-events: none;
   }
 
-  /* Header */
   .header {
     text-align: center;
     margin-bottom: 64px;
@@ -82,7 +81,7 @@
     line-height: 1;
     letter-spacing: -2px;
     margin-bottom: 16px;
-    background: linear-gradient(135deg, #fff 30%, var(--accent) 70%, var(--accent2));
+    background: linear-gradient(135deg, #fff 20%, var(--accent) 70%, var(--accent2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -91,11 +90,10 @@
     font-size: 18px;
     color: var(--muted);
     font-weight: 300;
-    max-width: 500px;
+    max-width: 700px;
     margin: 0 auto;
   }
 
-  /* Section */
   .section {
     margin-bottom: 56px;
     animation: fadeUp 0.8s ease both;
@@ -132,17 +130,16 @@
     letter-spacing: -0.5px;
   }
 
-  /* Token size card */
-  .token-size-card {
+  .card {
     background: var(--surface);
     border-radius: 20px;
-    padding: 36px;
+    padding: 32px;
     border: 1px solid rgba(255,255,255,0.04);
     position: relative;
     overflow: hidden;
   }
 
-  .token-size-card::after {
+  .card::after {
     content: '';
     position: absolute;
     top: 0;
@@ -152,285 +149,93 @@
     background: linear-gradient(to right, var(--accent), var(--accent2));
   }
 
-  .token-equation {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 28px;
-  }
-
-  .token-unit {
-    text-align: center;
-  }
-
-  .token-unit .big {
-    font-size: 56px;
-    font-weight: 900;
-    color: var(--accent);
-    line-height: 1;
-    font-family: 'Space Mono', monospace;
-  }
-
-  .token-unit .label {
-    font-size: 13px;
-    color: var(--muted);
-    margin-top: 6px;
-  }
-
-  .token-eq-sign {
-    font-size: 32px;
-    color: var(--muted);
-    font-weight: 300;
-  }
-
-  .token-examples {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .token-chip {
-    background: var(--surface2);
-    border: 1px solid rgba(255,255,255,0.06);
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-family: 'Space Mono', monospace;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-  }
-
-  .token-chip:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 20px var(--glow);
-    transform: translateY(-2px);
-  }
-
-  .token-chip .word { color: #fff; font-weight: 700; }
-  .token-chip .count {
-    color: var(--accent);
-    font-size: 11px;
-    background: rgba(0, 229, 160, 0.1);
-    padding: 2px 8px;
-    border-radius: 6px;
-  }
-
-  /* BPE Algorithm visual */
-  .bpe-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    background: var(--surface);
-    border-radius: 20px;
-    padding: 32px;
-    border: 1px solid rgba(255,255,255,0.04);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .bpe-steps::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(to right, var(--accent2), var(--accent3));
-  }
-
-  .bpe-step {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    padding: 16px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    transition: all 0.3s ease;
-  }
-
-  .bpe-step:last-child { border-bottom: none; }
-  .bpe-step:hover { padding-left: 8px; }
-
-  .step-num {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .step-num.s1 { background: rgba(124, 92, 252, 0.15); color: var(--accent2); }
-  .step-num.s2 { background: rgba(0, 229, 160, 0.15); color: var(--accent); }
-  .step-num.s3 { background: rgba(255, 107, 107, 0.15); color: var(--accent3); }
-  .step-num.s4 { background: rgba(255, 200, 50, 0.15); color: #ffc832; }
-
-  .step-text { font-size: 15px; line-height: 1.6; color: var(--text); }
-  .step-text em { color: var(--accent); font-style: normal; font-weight: 600; }
-
-  /* Frequency comparison */
-  .freq-compare {
+  .token-grid,
+  .billing-grid,
+  .formula-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
   }
 
-  @media (max-width: 600px) { .freq-compare { grid-template-columns: 1fr; } }
+  @media (max-width: 800px) {
+    .token-grid,
+    .billing-grid,
+    .formula-grid { grid-template-columns: 1fr; }
+  }
 
-  .freq-card {
-    background: var(--surface);
+  .mini-card {
+    background: var(--surface2);
+    border: 1px solid rgba(255,255,255,0.06);
     border-radius: 16px;
-    padding: 28px;
-    border: 1px solid rgba(255,255,255,0.04);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
+    padding: 22px;
   }
 
-  .freq-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+  .mini-card h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #fff;
   }
 
-  .freq-card.common::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--accent);
-  }
-
-  .freq-card.rare::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--accent3);
-  }
-
-  .freq-word {
-    font-family: 'Space Mono', monospace;
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  .freq-card.common .freq-word { color: var(--accent); }
-  .freq-card.rare .freq-word { color: var(--accent3); }
-
-  .freq-tokens {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-  }
-
-  .freq-token {
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    padding: 5px 12px;
-    border-radius: 6px;
-    border: 1px solid;
-  }
-
-  .freq-card.common .freq-token {
-    background: rgba(0, 229, 160, 0.08);
-    border-color: rgba(0, 229, 160, 0.2);
-    color: var(--accent);
-  }
-
-  .freq-card.rare .freq-token {
-    background: rgba(255, 107, 107, 0.08);
-    border-color: rgba(255, 107, 107, 0.2);
-    color: var(--accent3);
-  }
-
-  .freq-badge {
-    font-size: 12px;
+  .mini-card p,
+  .mini-card li,
+  .insight-card p,
+  .callout p {
     color: var(--muted);
+    font-size: 15px;
+  }
+
+  .big-number {
     font-family: 'Space Mono', monospace;
-  }
-
-  .freq-badge span {
     font-weight: 700;
+    font-size: 34px;
+    color: var(--accent);
+    margin-bottom: 6px;
   }
 
-  .freq-card.common .freq-badge span { color: var(--accent); }
-  .freq-card.rare .freq-badge span { color: var(--accent3); }
-
-  /* Scale card */
-  .scale-card {
-    background: var(--surface);
-    border-radius: 20px;
-    padding: 36px;
-    border: 1px solid rgba(255,255,255,0.04);
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .scale-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(to right, var(--accent), #ffc832);
-  }
-
-  .scale-stat {
+  .formula {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    color: var(--text);
     margin-bottom: 10px;
   }
 
-  .scale-stat .num {
-    font-size: 64px;
-    font-weight: 900;
-    font-family: 'Space Mono', monospace;
-    background: linear-gradient(135deg, var(--accent), #ffc832);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    line-height: 1.1;
-  }
-
-  .scale-stat .unit {
-    font-size: 14px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-family: 'Space Mono', monospace;
-  }
-
-  .scale-equiv {
-    font-size: 16px;
-    color: var(--muted);
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-top: 12px;
-    line-height: 1.5;
   }
 
-  .scale-equiv strong {
+  .pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(0, 229, 160, 0.08);
+    border: 1px solid rgba(0, 229, 160, 0.18);
+    padding: 6px 10px;
+    border-radius: 999px;
+  }
+
+  .note {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--accent2);
+    background: rgba(124, 92, 252, 0.08);
     color: var(--text);
-    font-weight: 600;
+    border-radius: 10px;
   }
 
-  /* Key insight */
+  ul {
+    padding-left: 18px;
+  }
+
+  li + li { margin-top: 8px; }
+
   .insight-card {
     background: linear-gradient(135deg, rgba(124, 92, 252, 0.08), rgba(0, 229, 160, 0.08));
     border-radius: 20px;
     padding: 32px;
     border: 1px solid rgba(124, 92, 252, 0.15);
-    position: relative;
-  }
-
-  .insight-card .icon {
-    font-size: 28px;
-    margin-bottom: 12px;
   }
 
   .insight-card h3 {
@@ -440,18 +245,6 @@
     color: #fff;
   }
 
-  .insight-card p {
-    font-size: 15px;
-    color: var(--muted);
-    line-height: 1.7;
-  }
-
-  .insight-card p strong {
-    color: var(--accent);
-    font-weight: 600;
-  }
-
-  /* Footer */
   .footer {
     text-align: center;
     margin-top: 48px;
@@ -471,122 +264,108 @@
 </head>
 <body>
 <div class="infographic">
-
   <div class="header">
-    <div class="tag">Demystified</div>
-    <h1>Tokens</h1>
-    <p>How LLMs break language into pieces — and why it matters</p>
+    <div class="tag">Usage-Based Billing</div>
+    <h1>Tokens, Credits, and USD</h1>
+    <p>A high-level explanation of how usage is measured, how providers translate that usage into credits, and how credits map back to USD.</p>
   </div>
 
-  <!-- 1. What is a token -->
   <div class="section">
     <div class="section-label">01 — The Basics</div>
-    <h2>What is 1 token?</h2>
-    <div class="token-size-card">
-      <div class="token-equation">
-        <div class="token-unit">
-          <div class="big">1</div>
-          <div class="label">token</div>
+    <h2>What is a token?</h2>
+    <div class="card">
+      <div class="token-grid">
+        <div class="mini-card">
+          <div class="big-number">Token</div>
+          <h3>Smallest billing unit for text</h3>
+          <p>AI models typically count text in tokens, not words. A token may be a whole word, part of a word, punctuation, or even a space.</p>
         </div>
-        <div class="token-eq-sign">≈</div>
-        <div class="token-unit">
-          <div class="big">¾</div>
-          <div class="label">of a word</div>
+        <div class="mini-card">
+          <div class="big-number">Input</div>
+          <h3>What you send</h3>
+          <p>Prompts, system instructions, and retrieved context all consume input tokens.</p>
         </div>
-        <div class="token-eq-sign">≈</div>
-        <div class="token-unit">
-          <div class="big">3–4</div>
-          <div class="label">characters</div>
+        <div class="mini-card">
+          <div class="big-number">Output</div>
+          <h3>What the model returns</h3>
+          <p>The model’s response is counted separately as output tokens, which are often priced differently from input tokens.</p>
         </div>
       </div>
-      <div class="token-examples">
-        <div class="token-chip"><span class="word">"cat"</span><span class="count">1 token</span></div>
-        <div class="token-chip"><span class="word">"hello"</span><span class="count">1 token</span></div>
-        <div class="token-chip"><span class="word">"the"</span><span class="count">1 token</span></div>
-        <div class="token-chip"><span class="word">"dog"</span><span class="count">1 token</span></div>
-      </div>
+      <div class="note">Rule of thumb: <strong>more text usually means more tokens</strong>, but the exact count depends on how the text is split by the model’s tokenizer.</div>
     </div>
   </div>
 
-  <!-- 2. BPE Algorithm -->
   <div class="section">
-    <div class="section-label">02 — The Algorithm</div>
-    <h2>Byte Pair Encoding (BPE)</h2>
-    <div class="bpe-steps">
-      <div class="bpe-step">
-        <div class="step-num s1">1</div>
-        <div class="step-text">Start with every individual <em>character</em> as its own token</div>
-      </div>
-      <div class="bpe-step">
-        <div class="step-num s2">2</div>
-        <div class="step-text">Scan a massive text corpus and find the <em>most frequent pair</em> of adjacent tokens</div>
-      </div>
-      <div class="bpe-step">
-        <div class="step-num s3">3</div>
-        <div class="step-text"><em>Merge</em> that pair into a single new token</div>
-      </div>
-      <div class="bpe-step">
-        <div class="step-num s4">4</div>
-        <div class="step-text">Repeat <em>thousands of times</em> until reaching ~50K–100K vocabulary size</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 3. Frequency matters -->
-  <div class="section">
-    <div class="section-label">03 — Frequency Matters</div>
-    <h2>Common vs. rare words</h2>
-    <div class="freq-compare">
-      <div class="freq-card common">
-        <div class="freq-word">"recognize"</div>
-        <div class="freq-tokens">
-          <div class="freq-token">recognize</div>
+    <div class="section-label">02 — Usage Measurement</div>
+    <h2>How tokens relate to credits</h2>
+    <div class="card">
+      <div class="formula-grid">
+        <div class="mini-card">
+          <div class="formula">Tokens used → converted to usage cost</div>
+          <p>Provider billing starts with token counts. The platform applies the model’s rate to those tokens.</p>
         </div>
-        <div class="freq-badge"><span>1 token</span> — common word, earned its own token</div>
-      </div>
-      <div class="freq-card rare">
-        <div class="freq-word">"rasterize"</div>
-        <div class="freq-tokens">
-          <div class="freq-token">rast</div>
-          <div class="freq-token">er</div>
-          <div class="freq-token">ize</div>
+        <div class="mini-card">
+          <div class="formula">Usage cost → converted to credits</div>
+          <p>Some platforms show the cost as internal credits. Credits are a display or accounting layer, not usually a new kind of usage.</p>
         </div>
-        <div class="freq-badge"><span>~3 tokens</span> — rare word, split into subwords</div>
+        <div class="mini-card">
+          <div class="formula">Credits → deducted from balance</div>
+          <p>Your balance decreases as credits are spent, and those credits represent the underlying usage charge.</p>
+        </div>
       </div>
+      <div class="note">Important: <strong>credits are often just a billing abstraction</strong>. They make usage easier to present, but the underlying source of truth is still token usage and the provider’s pricing.</div>
     </div>
   </div>
 
-  <!-- 4. Scale -->
   <div class="section">
-    <div class="section-label">04 — At Scale</div>
-    <h2>Context window in perspective</h2>
-    <div class="scale-card">
-      <div class="scale-stat">
-        <div class="num">200K</div>
-        <div class="unit">token context window</div>
+    <div class="section-label">03 — Billing Conversion</div>
+    <h2>How credits relate to USD</h2>
+    <div class="card">
+      <div class="billing-grid">
+        <div class="mini-card">
+          <h3>USD is the real currency value</h3>
+          <p>Pricing is ultimately defined in dollars per token, per million tokens, or another USD-based rate.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Credits mirror that value</h3>
+          <p>One credit may equal one cent, one dollar, or some other fixed amount depending on the product.</p>
+        </div>
+        <div class="mini-card">
+          <h3>Conversion is product-specific</h3>
+          <p>The exact credit-to-USD ratio is set by the platform and can differ across plans, models, or billing systems.</p>
+        </div>
       </div>
-      <div class="scale-equiv">
-        ≈ <strong>150,000 words</strong> — roughly the length of <strong>two novels</strong>
-      </div>
+      <div class="note">In practice: <strong>tokens determine usage</strong> → usage becomes a dollar cost → the platform may show that cost as credits → credits map back to USD.</div>
     </div>
   </div>
 
-  <!-- 5. Key Insight -->
   <div class="section">
-    <div class="section-label">05 — The Takeaway</div>
+    <div class="section-label">04 — Simple Formula</div>
+    <h2>A high-level billing flow</h2>
     <div class="insight-card">
-      <div class="icon">⚡</div>
-      <h3>Not syllables — statistics</h3>
+      <h3>Common mental model</h3>
+      <p>Usage-based billing usually follows this pattern:</p>
+      <div class="pill-row">
+        <span class="pill">Tokens used</span>
+        <span class="pill">× model price</span>
+        <span class="pill">= USD cost</span>
+        <span class="pill">→ credits deducted</span>
+      </div>
+      <div class="note">This is a simplification. Actual invoices may also include separate pricing for input vs. output tokens, tool use, image generation, or other features.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">05 — Key Takeaway</div>
+    <div class="insight-card">
+      <h3>Tokens are the usage meter</h3>
       <p>
-        BPE is purely <strong>frequency-driven</strong>, not linguistic. It's language-agnostic — working across English, code, emoji, and any language. Common patterns compress into single tokens; rare or technical jargon costs more. This means a <strong>highly technical prompt</strong> consumes more context window than a casual one of the same word count.
+        At a high level, tokens measure how much text a model processes. Credits are a billing layer that helps platforms track and show that usage. USD is the monetary value underneath it all. So if you want to estimate cost, start with token usage, apply the model’s rate, and then convert to credits or dollars depending on how the platform presents billing.
       </p>
     </div>
   </div>
 
-  <div class="footer">
-    Generated from a conversation with Claude · 2025
-  </div>
-
+  <div class="footer">Updated for clearer usage-based billing education</div>
 </div>
 </body>
 </html>
