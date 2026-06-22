@@ -267,7 +267,7 @@
   <div class="header">
     <div class="tag">Usage-Based Billing</div>
     <h1>Tokens, Credits, and USD</h1>
-    <p>A high-level explanation of how usage is measured, how providers translate that usage into credits, and how credits map back to USD.</p>
+    <p>A simple guide to how AI usage is counted, priced, and shown on a bill.</p>
   </div>
 
   <div class="section">
@@ -277,95 +277,95 @@
       <div class="token-grid">
         <div class="mini-card">
           <div class="big-number">Token</div>
-          <h3>Smallest billing unit for text</h3>
-          <p>AI models typically count text in tokens, not words. A token may be a whole word, part of a word, punctuation, or even a space.</p>
+          <h3>A small piece of text</h3>
+          <p>AI does not count text exactly like people do. It breaks your words into small pieces called tokens.</p>
         </div>
         <div class="mini-card">
           <div class="big-number">Input</div>
-          <h3>What you send</h3>
-          <p>Prompts, system instructions, and retrieved context all consume input tokens.</p>
+          <h3>What you give the AI</h3>
+          <p>Your prompt, instructions, and any added reference material all count as input.</p>
         </div>
         <div class="mini-card">
           <div class="big-number">Output</div>
-          <h3>What the model returns</h3>
-          <p>The model’s response is counted separately as output tokens, which are often priced differently from input tokens.</p>
+          <h3>What the AI gives back</h3>
+          <p>The answer from the AI is output. Input and output may have different prices.</p>
         </div>
       </div>
-      <div class="note">Rule of thumb: <strong>more text usually means more tokens</strong>, but the exact count depends on how the text is split by the model’s tokenizer.</div>
+      <div class="note">Simple example: <strong>a short question costs less than a long document review</strong>, because there is less text for the AI to read and write.</div>
     </div>
   </div>
 
   <div class="section">
     <div class="section-label">02 — Usage Measurement</div>
-    <h2>How tokens relate to credits</h2>
+    <h2>How tokens turn into credits</h2>
     <div class="card">
       <div class="formula-grid">
         <div class="mini-card">
-          <div class="formula">Tokens used → converted to usage cost</div>
-          <p>Provider billing starts with token counts. The platform applies the model’s rate to those tokens.</p>
+          <div class="formula">Tokens used → cost calculated</div>
+          <p>The platform counts how much text was processed, then applies the model’s price.</p>
         </div>
         <div class="mini-card">
-          <div class="formula">Usage cost → converted to credits</div>
-          <p>Some platforms show the cost as internal credits. Credits are a display or accounting layer, not usually a new kind of usage.</p>
+          <div class="formula">Cost → shown as credits</div>
+          <p>Some platforms show spending as credits instead of dollars.</p>
         </div>
         <div class="mini-card">
-          <div class="formula">Credits → deducted from balance</div>
-          <p>Your balance decreases as credits are spent, and those credits represent the underlying usage charge.</p>
+          <div class="formula">Credits → deducted</div>
+          <p>As you use the service, credits are removed from your available balance.</p>
         </div>
       </div>
-      <div class="note">Important: <strong>credits are often just a billing abstraction</strong>. They make usage easier to present, but the underlying source of truth is still token usage and the provider’s pricing.</div>
+      <div class="note">Think of credits like arcade tokens: <strong>they make spending easier to track</strong>, but they still represent real money behind the scenes.</div>
     </div>
   </div>
 
   <div class="section">
     <div class="section-label">03 — Billing Conversion</div>
-    <h2>How credits relate to USD</h2>
+    <h2>How credits connect to dollars</h2>
     <div class="card">
       <div class="billing-grid">
         <div class="mini-card">
-          <h3>USD is the real currency value</h3>
-          <p>Pricing is ultimately defined in dollars per token, per million tokens, or another USD-based rate.</p>
+          <h3>Dollars are the real cost</h3>
+          <p>The provider sets a price, often based on tokens or groups of tokens.</p>
         </div>
         <div class="mini-card">
-          <h3>Credits mirror that value</h3>
-          <p>One credit may equal one cent, one dollar, or some other fixed amount depending on the product.</p>
+          <h3>Credits represent that cost</h3>
+          <p>A credit may equal a penny, a dollar, or another amount depending on the product.</p>
         </div>
         <div class="mini-card">
-          <h3>Conversion is product-specific</h3>
-          <p>The exact credit-to-USD ratio is set by the platform and can differ across plans, models, or billing systems.</p>
+          <h3>Every platform can differ</h3>
+          <p>The credit-to-dollar rate depends on the provider, plan, and model.</p>
         </div>
       </div>
-      <div class="note">In practice: <strong>tokens determine usage</strong> → usage becomes a dollar cost → the platform may show that cost as credits → credits map back to USD.</div>
+      <div class="note">Simple example: <strong>tokens are like electricity usage</strong>. Credits are like the meter reading, and dollars are the final bill.</div>
     </div>
   </div>
 
   <div class="section">
     <div class="section-label">04 — Simple Formula</div>
-    <h2>A high-level billing flow</h2>
+    <h2>The simple billing flow</h2>
     <div class="insight-card">
-      <h3>Common mental model</h3>
-      <p>Usage-based billing usually follows this pattern:</p>
+      <h3>Start here when estimating cost</h3>
+      <p>Most usage-based AI bills follow this path:</p>
       <div class="pill-row">
         <span class="pill">Tokens used</span>
-        <span class="pill">× model price</span>
+        <span class="pill">× price</span>
         <span class="pill">= USD cost</span>
         <span class="pill">→ credits deducted</span>
       </div>
-      <div class="note">This is a simplification. Actual invoices may also include separate pricing for input vs. output tokens, tool use, image generation, or other features.</div>
+      <div class="note">This is the simple version. Some bills also include separate charges for input, output, tools, images, or other features.</div>
     </div>
   </div>
 
   <div class="section">
     <div class="section-label">05 — Key Takeaway</div>
     <div class="insight-card">
-      <h3>Tokens are the usage meter</h3>
+      <h3>Tokens are the meter</h3>
       <p>
-        At a high level, tokens measure how much text a model processes. Credits are a billing layer that helps platforms track and show that usage. USD is the monetary value underneath it all. So if you want to estimate cost, start with token usage, apply the model’s rate, and then convert to credits or dollars depending on how the platform presents billing.
+        Tokens measure how much work the AI does with text. Credits help show or track that usage. Dollars are the real cost behind it. To estimate cost, start with tokens, apply the model price, then convert that amount into credits or dollars.
       </p>
     </div>
   </div>
 
-  <div class="footer">Updated for clearer usage-based billing education</div>
+  <div class="footer">Simplified for user-friendly AI billing education</div>
 </div>
 </body>
 </html>
